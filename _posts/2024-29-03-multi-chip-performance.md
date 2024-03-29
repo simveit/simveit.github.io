@@ -146,4 +146,4 @@ Let's look at the trace viewer to get more insight about how jax compiled the ma
 We see that JAX does exactly what we described above! Only the first all gather is performed for a "long" time. Afterwards the gathering process gets fused with the matrix multiplication which gives a huge speedup if we compare it to the naive approach that we would just apply all gathering after each matrix multiplication and at the same time it gives us the benefit that we can safe lots of memory by sharding most of the weights over all chips.
 
 I hope this post was insightful and you liked it.
-Large parts of it are based on the insights from [this fantastic online course delivered by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024).
+Large parts of it are based on the insights from [this fantastic online course delivered by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The code for the timeit function can be found in this repo aswell.
