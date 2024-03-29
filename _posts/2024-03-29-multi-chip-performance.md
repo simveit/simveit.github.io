@@ -140,7 +140,7 @@ average_time = simple_timeit(matmul, ACTIVATION, WEIGHTS, task="matmul")
 
 print(f"Average time for forward pass: {average_time:.2f} ms")
 ```
-For the above setting we archieved an average time of $39.82 ms$ on Googles `TPU-v4-8`. 
+For the above setting we archieved an average time of $39.82 ms$ on Googles `TPU-v4-8` (that is a TPU with 8/2=4 chips). 
 Let's look at the trace viewer to get more insight about how jax compiled the matmul function:
 ![Profiler](/assets/multi_chip_processing/fdsp.png)
 We see that JAX does exactly what we described above! Only the first all gather is performed for a "long" time. Afterwards the gathering process gets fused with the matrix multiplication which gives a huge speedup if we compare it to the naive approach that we would just apply all gathering after each matrix multiplication and at the same time it gives us the benefit that we can safe lots of memory by sharding most of the weights over all chips.
