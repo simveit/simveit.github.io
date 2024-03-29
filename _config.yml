@@ -58,32 +58,20 @@ plugins:
 author:
   name   : "Simon Veitner"
   avatar : "/assets/bio/pp.jpeg"
-  bio    : "I'm Simon a 31 year old into all kinds of stuff related to computing and data science."
-  links:
-    - label: "Website"
-      icon: "fas fa-fw fa-link"
-      url: "https://"
-    - label: "Twitter"
-      icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
-    - label: "GitHub"
-      icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
-
-footer:
+  bio    : "I'm Simon and 31 years old. I'm into all kinds of stuff related to computing and data science."
   links:
     - label: "Twitter"
       icon: "fab fa-fw fa-twitter-square"
-      url: "https://twitter.com/"
+      url: "https://twitter.com/Simon_Vt"
     - label: "GitHub"
       icon: "fab fa-fw fa-github"
-      url: "https://github.com/"
-    - label: "Instagram"
-      icon: "fab fa-fw fa-instagram"
-      url: "https://instagram.com/"
+      url: "https://github.com/simveit/"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/simon-veitner/"
+    - label: "Kaggle"
+      icon: "fas fa-fw fa-kaggle"
+      url: "https://www.kaggle.com/simonveitner"
 
 defaults:
   # _posts
