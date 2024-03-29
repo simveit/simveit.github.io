@@ -70,9 +70,9 @@ author:
       icon: "fab fa-fw fa-linkedin"
       url: "https://www.linkedin.com/in/simon-veitner/"
     - label: "Kaggle"
-      icon: "fas fa-fw fa-globe"  # Using a generic globe icon for Kaggle
+      icon: "fas fa-fw fa-link"  # Using a generic globe icon for Kaggle
       url: "https://www.kaggle.com/simonveitner"
-      
+
 defaults:
   # _posts
   - scope:
