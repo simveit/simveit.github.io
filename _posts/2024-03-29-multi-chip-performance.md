@@ -23,10 +23,8 @@ This can be visualized as follows:
 The different colors should visualize the fact that the activations are distributed batchwise over the different chips and the weights are copied onto all chips.
 In JAX we can accomplish distribution onto different chips as follows:
 ```
-import numpy as np
 import jax
 from timing_util import simple_timeit
-from functools import partial
 
 ### Parameters
 MATRIX_SIZE = 16_384
