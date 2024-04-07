@@ -329,4 +329,4 @@ pallas: average time milliseconds: 2.78, trace /tmp/t_pallas_G8UDE4Y3EB
 ```
 Parallelization gives a speedup by 75%  if we have our hands on 4 chips as each chip will process only 1/4 of the data instead of one chip all of it.
 
-This blogpost is heavily influences by the following [course by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The book of [Bishop & Bishop](https://www.bishopbook.com/) was helpful as well. The experiments were supported by [Googles TRC program](https://sites.research.google/trc/about/).
+This blogpost is heavily influenced by the following [course by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The book of [Bishop & Bishop](https://www.bishopbook.com/) was helpful as well. The experiments were supported by [Googles TRC program](https://sites.research.google/trc/about/).
