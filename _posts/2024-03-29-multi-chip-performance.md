@@ -146,4 +146,4 @@ We see that JAX does exactly what we described above! Only the first all gather 
 Keep in mind that this compilation won't be done by default on a TPU of the fourth generation. To get this speedup we need to execute `export LIBTPU_INIT_ARGS="--xla_enable_async_all_gather=true TPU_MEGACORE=MEGACORE_DENSE"` in our terminal to initialize the TPU correctly. If you won't do that the all gathering won't be fused with the matmul and as a result it will take around 53.31 ms.
 
 I hope this post was insightful and you liked it.
-Large parts of it are based on the insights from [this fantastic online course delivered by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The code for the timeit function can be found in this repo aswell.
+Large parts of it are based on the insights from [this fantastic online course delivered by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The code for the timeit function can be found in this repo aswell. The experiments were supported by [Googles TRC program](https://sites.research.google/trc/about/)
