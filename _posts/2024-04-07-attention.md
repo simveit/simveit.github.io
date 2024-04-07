@@ -149,6 +149,11 @@ pallas: average time milliseconds: 8.11, trace /tmp/t_pallas_FVWQ4IAHT2
 ```
 There is another optimizaton we can make.
 Assume we have a bunch of sequences which we want to train on. The maximum sequence length might be a number `N`. It would be very unlikely that all sequences have exactly this length. In fact we expect most of them to be shorter. This leads to the concept of *packing* where we might *pack* multiple sequence into one row. For that to work we need to ensure that the sequences don't interact. I.e. the different sequences should only pay attention to themselves.
+Let's visualize that for the example that we have a sequence length of 8. The first 4 tokens are an own sequence, the next three are an own sequence and the last token is an own sequence:
+
+![Packing Mask](/assets/attention/PackingMask.png)
+The red fields mean "masking out".
+
 We can accomplish this in JAX as follows:
 ```
 import jax
