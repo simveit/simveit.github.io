@@ -72,7 +72,7 @@ time_ourselves = simple_timeit(attention_ourselves, Q, K, V, task="ourselves")
 time_pallas = simple_timeit(attention_pallas, Q, K, V, task="pallas")
 
 """
-Outputs:
+Output:
 
 ourselves: average time milliseconds: 8.13, trace /tmp/t_ourselves_9ZMO2723QB
 pallas: average time milliseconds: 8.10, trace /tmp/t_pallas_KKX3Q8EF94
@@ -133,7 +133,7 @@ time_ourselves = simple_timeit(attention_ourselves, Q, K, V, task="ourselves")
 time_pallas = simple_timeit(attention_pallas, Q, K, V, task="pallas")
 
 """
-Outputs:
+Output:
 
 [[False  True  True  True  True  True  True  True]
  [False False  True  True  True  True  True  True]
@@ -217,6 +217,8 @@ time_ourselves = simple_timeit(attention_ourselves, Q, K, V, task="ourselves")
 time_pallas = simple_timeit(attention_pallas, Q, K, V, task="pallas")
 
 """
+Output:
+
 [[1. 1. 1. 1. 2. 2. 2. 3.]]
 [[[False False False False  True  True  True  True]
   [False False False False  True  True  True  True]
@@ -323,6 +325,8 @@ time_ourselves = simple_timeit(attention_ourselves, Q, K, V, task="ourselves")
 time_pallas = simple_timeit(attention_pallas, Q, K, V, task="pallas")
 
 """
+Output:
+
 ourselves_ns: average time milliseconds: 8.68, trace /tmp/t_ourselves_ns_PBJJR6FUT8
 ourselves: average time milliseconds: 2.33, trace /tmp/t_ourselves_W39992S9Z7
 pallas: average time milliseconds: 2.78, trace /tmp/t_pallas_G8UDE4Y3EB
