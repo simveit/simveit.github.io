@@ -235,8 +235,9 @@ We can combine these two masks by using a simple logical `OR`, i.e. we mask out 
 One more important point is the possibility of parallelizing to leverage multiple chips.
 In case of attention it turns out that parallelizing is not difficult to reason about.
 
-1) We have `BATCH` dimension. Each batch is processed idepently, so we can always parallelize along this dimension.
-2) We have `HEADS` dimension. By definition each head is independent from the other heads so we can parallelize as well.
+-   We have `BATCH` dimension. Each batch is processed idepently, so we can always parallelize along this dimension.
+
+- We have `HEADS` dimension. By definition each head is independent from the other heads so we can parallelize as well.
 
 The final implementation which uses packing, causality and parallelization looks as follows:
 ```
