@@ -230,9 +230,11 @@ ourselves: average time milliseconds: 9.40, trace /tmp/t_ourselves_DINVH9D3WW
 pallas: average time milliseconds: 8.50, trace /tmp/t_pallas_V5NQP4EOMD
 """
 ```
-We can combine these two masks by using a simple logical `ÒR`, i.e. we mask out if condition `CAUSAL` or condition `PACKING` demands a mask out.
+We can combine these two masks by using a simple logical `OR`, i.e. we mask out if condition `CAUSAL` or condition `PACKING` demands a mask out.
+
 One more important point is the possibility of parallelizing to leverage multiple chips.
 In case of attention it turns out that parallelizing is not difficult to reason about.
+
 1) We have `BATCH` dimension. Each batch is processed idepently, so we can always parallelize along this dimension.
 2) We have `HEADS` dimension. By definition each head is independent from the other heads so we can parallelize as well.
 
