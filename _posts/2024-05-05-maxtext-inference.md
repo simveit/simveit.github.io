@@ -64,10 +64,6 @@ We modify the content of to be:
 ```
 #!/bin/bash
 
-# This script is designed for internal use within Google. External users can adapt it by:
-#  - Updating GCS paths (gs://) to your accessible locations.
-#  - Using the checkpoint generated from train.py or available one in open source (i.e. https://files.mistral-7b-v0-1.mistral.ai/mistral-7B-v0.1.tar).
-
 set -ex
 idx="0"
 
