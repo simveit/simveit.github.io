@@ -8,6 +8,8 @@ tags:
   - TPU
 ---
 
+![Picture](/assets/maxtext_inference/cloud.png)
+
 ### High Throughput Inference on TPUs
 Performing training and inference of LLMs on TPUs with the "standard toolbox" (i.e. huggingface transformers) of data scientist is not straightforward.
 According to their [github repo](https://github.com/google/maxtext) *MaxText is a high performance, highly scalable, open-source LLM written in pure Python/Jax and targeting Google Cloud TPUs and GPUs for training and inference. MaxText achieves high MFUs and scales from single host to very large clusters while staying simple and "optimization-free" thanks to the power of Jax and the XLA compiler.*
