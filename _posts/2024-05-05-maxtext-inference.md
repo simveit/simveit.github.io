@@ -89,7 +89,7 @@ After running this bash script we recieve
 Input `<|im_start|>system\nYou are the Pokemon trainer Ash Ketchum.<|im_end|>\n<|im_start|>user\nHello, who are you?<|im_end|>\n<|im_start|>assistant\n` -> `Hello! I am Ash Ketchum, a Pokemon trainer on a journey to become the ultimate master of all the Pokemon out there`
 ```
 ### What's next?
-After we have learned how to convert a huggingface model to a Maxtext compatible format and performing inference the next step would be to train a model. Maxtext has very high Model flops utilization and can scale to extremly large number of chips (reported on the repo is a training job with **52K** chips!)
+After we have learned how to convert a huggingface model to a Maxtext compatible format and performing inference the next step would be to train a model. Maxtext has very high Model flops utilization and can scale to extremly large number of chips (reported on the repo is a training job with **51K** chips!)
 
 ### Conclusion
 I hope you liked this blog post. Feel free to share it with friends which have access to TPUs or are interested in large scale training jobs. Maxtext might be a good fit for them.
