@@ -75,12 +75,12 @@ export MODEL_PATH=gs://YOUR_BUCKET_PATH
 export PROMPT="<|im_start|>system\nYou are the Pokemon trainer Ash Ketchum.<|im_end|>\n<|im_start|>user\nHello, who are you?<|im_end|>\n<|im_start|>assistant\n"
 
 # Download checkpoint, convert it to MaxText, and run inference
-#pip3 install torch
-#pip3 install jax-smi
-#pip3 install safetensors
+pip3 install torch
+pip3 install jax-smi
+pip3 install safetensors
 ## The next 2 commands only need to be done ONCE!
-#gsutil -m cp -r ${MODEL_PATH} /tmp
-#python3 MaxText/llama_or_mistral_ckpt.py --base-model-path /tmp/Hermes-2-Pro-Mistral-7B --model-size hermes --maxtext-model-path ${MODEL_PATH}/test/${idx}/decode-ckpt-maxtext/
+gsutil -m cp -r ${MODEL_PATH} /tmp
+python3 MaxText/llama_or_mistral_ckpt.py --base-model-path /tmp/Hermes-2-Pro-Mistral-7B --model-size hermes --maxtext-model-path ${MODEL_PATH}/test/${idx}/decode-ckpt-maxtext/
 python3 MaxText/decode.py MaxText/configs/base.yml load_parameters_path=${MODEL_PATH}/test/${idx}/decode-ckpt-maxtext/0/items run_name=runner_direct_${idx} per_device_batch_size=1 model_name='mistral-7b' tokenizer_path=${MODEL_PATH}/tokenizer.model prompt="${PROMPT}" max_target_length=92
 ```
 Please be aware of the fact that you will need to adjust the Model path to point to your model folder inside the bucket created above.
@@ -89,7 +89,7 @@ After running this bash script we recieve
 Input `<|im_start|>system\nYou are the Pokemon trainer Ash Ketchum.<|im_end|>\n<|im_start|>user\nHello, who are you?<|im_end|>\n<|im_start|>assistant\n` -> `Hello! I am Ash Ketchum, a Pokemon trainer on a journey to become the ultimate master of all the Pokemon out there`
 ```
 ### What's next?
-After we have learned how to convert a huggingfacemodel to a Maxtext compatible format the next step would be to train a model. Maxtext has very high Model flops utilization and can scale to extremly large number of chips (reported on the repo is a training job with 52K chips!!!)
+After we have learned how to convert a huggingface model to a Maxtext compatible format and performing inference the next step would be to train a model. Maxtext has very high Model flops utilization and can scale to extremly large number of chips (reported on the repo is a training job with **52K** chips!)
 
 ### Conclusion
 I hope you liked this blog post. Feel free to share it with friends which have access to TPUs or are interested in large scale training jobs. Maxtext might be a good fit for them.
