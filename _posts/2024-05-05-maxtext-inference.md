@@ -56,7 +56,7 @@ bash setup.sh
 ### Adjusting the convert file
 To run a model using Maxtext we need it to be in the Maxtext compatible format.
 Conversion from huggingface format is not the standard so we need to adjust the default conversion script.
-Thanks to user @Froggy111 from the JAX LLM discord channel for kindly providing this script to me :).
+Thanks to user @[Froggy111](https://github.com/Froggy111) from the JAX LLM discord channel for kindly providing this script to me :).
 You can copy the script from [this gist](https://gist.github.com/simveit/53f59b682c54172620726aa5609f6cb6). Be aware that you might adjust settings like I did with the hermes entry in the config (here the vocab size was different to the original mistral).
 We will take this file and use it to replace `MaxText/llama_or_mistral_ckpt.py` inside the maxtext repo. We should also adjust the vocab_size in `MaxText/configs/base.yml` and `MaxText/configs/models/mistral-7b.yml` if needed.
 
