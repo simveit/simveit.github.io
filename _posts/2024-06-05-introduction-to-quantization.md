@@ -107,7 +107,7 @@ MATRIX_SIZE =32768
 1-t_bfloat_16/t_float_32 =0.3467612778641981
 1-t_int_8/t_bfloat_16 =0.5689701690382064
 ```
-We see that the speedup is largely dependent ossssn the number of entries. That means in practice we need to be careful (at least on a TPU-v4-8) we need to be careful how to quantize.
+We see that the speedup is largely dependent ossssn the number of entries. That means in practice we need to be careful (at least on a TPU-v4-8) how to quantize.
 
 ### Conclusion
 In this blogpost we saw how INT8 quantization can give us huge speedups when running matrix calculations on a TPU.
