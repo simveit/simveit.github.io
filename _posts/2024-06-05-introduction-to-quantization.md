@@ -73,7 +73,7 @@ See below for the intermediate output:
 ![Picture2](/assets/quantization/quant2.png)
 
 Let us call our original matrix `M` and our `int8` matrix `N`.
-From the above we see that approximately `N` is equal to `M` times the scaling factor of `127/max(abs(M))` that after summing up the entries of `N` we need to multiply by `max(abs(M))/127` to get an approximation of `sum(M)`.
+From the above we see that approximately `N` is equal to `M` times the scaling factor of `127/max(abs(M))` that after summing up the entries of `N` we need to multiply by `max(abs(M))/127` to get an approximation of `sum(M)`. Obviously this step will cast our output implicetly back to `float32`.
 To give the full code in jax:
 ```
 scale = jax.numpy.max( jax.numpy.abs(A_f32) )
