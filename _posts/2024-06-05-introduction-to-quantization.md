@@ -65,10 +65,13 @@ Now we need to ask ourselves how we can convert the floating point numbers which
 It turns out there is a simple algorithm to archieve that goal.
 Let's consider a matrix and call the *scale* of the matrix the maximum of the absolute values of the matrix entries.
 We can visualize it like this:
-![Picture](/assets/quantization/quant1.png)
+
+![Picture1](/assets/quantization/quant1.png)
+
 Obviously we can use the scale to *normalize* our matrix, i.e. we squash all entries to be between -1 and 1. We then multiply by 127 to obtain floating points between -127 and 127. This will be casted to `int8`and we are ready to make our in `int8`.
 See below for the intermediate output:
-![Picture](/assets/quantization/quant2.png)
+![Picture2](/assets/quantization/quant2.png)
+
 Let us call our original matrix `M` and our `int8` matrix `N`.
 From the above we see that approximately `N` is equal to `M` times the scaling factor of `127/max(abs(M))` that after summing up the entries of `N` we need to multiply by `max(abs(M))/127` to get an approximation of `sum(M)`.
 To give the full code in jax:
@@ -104,7 +107,7 @@ MATRIX_SIZE =32768
 1-t_bfloat_16/t_float_32 =0.3467612778641981
 1-t_int_8/t_bfloat_16 =0.5689701690382064
 ```
-We see that the speedup is largely dependent on the number of entries. That means in practice we need to be careful (at least on a TPU-v4-8) we need to be careful how to quantize.
+We see that the speedup is largely dependent ossssn the number of entries. That means in practice we need to be careful (at least on a TPU-v4-8) we need to be careful how to quantize.
 
 ### Conclusion
 In this blogpost we saw how INT8 quantization can give us huge speedups when running matrix calculations on a TPU.
