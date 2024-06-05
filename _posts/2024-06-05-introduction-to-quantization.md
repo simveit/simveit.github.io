@@ -1,5 +1,5 @@
 ---
-title: "Introduction to int8 quantization in JAX"
+title: "Introduction to INT8 quantization in JAX"
 categories:
   - High performance computing
 tags:
@@ -71,3 +71,42 @@ See below for the intermediate output:
 ![Picture](/assets/quantization/quant2.png)
 Let us call our original matrix `M` and our `int8` matrix `N`.
 From the above we see that approximately `N` is equal to `M` times the scaling factor of `127/max(abs(M))` that after summing up the entries of `N` we need to multiply by `max(abs(M))/127` to get an approximation of `sum(M)`.
+To give the full code in jax:
+```
+scale = jax.numpy.max( jax.numpy.abs(A_f32) )
+A_i8 = jax.numpy.asarray( A_f32 / scale * 127, dtype=jax.numpy.int8)
+
+@jax.jit
+def sum_int8(scaled_arr, scale):
+    out = jax.numpy.sum(scaled_arr)
+    return out * scale / 127
+
+t_int_8 = simple_timeit(sum_int8, A_i8, scale, tries=30, task="sum_int_8")
+out_int_8 = sum_int8(A_i8, scale)
+```
+The result is impressive:
+```
+1-t_int_8/t_bfloat_16 =0.5729217991131133
+1-out_int_8/out_float_32 =Array(0.02700579, dtype=float32)
+```
+That means we get a huge speedup of 57% compared to `bfloat16` while still being relatively accurate.
+
+### Further considerations
+One could ask, how the above numbers change for different values of the `n_rows=n_cols=MATRIX_SIZE`. Find the result below:
+```
+MATRIX_SIZE =8192
+1-t_bfloat_16/t_float_32 =0.4849284741144412
+1-t_int_8/t_bfloat_16 =-0.019507356587865843
+MATRIX_SIZE =16384
+1-t_bfloat_16/t_float_32 =0.32089008463651136
+1-t_int_8/t_bfloat_16 =0.4819247276328822
+MATRIX_SIZE =32768
+1-t_bfloat_16/t_float_32 =0.3467612778641981
+1-t_int_8/t_bfloat_16 =0.5689701690382064
+```
+We see that the speedup is largely dependent on the number of entries. That means in practice we need to be careful (at least on a TPU-v4-8) we need to be careful how to quantize.
+
+### Conclusion
+In this blogpost we saw how INT8 quantization can give us huge speedups when running matrix calculations on a TPU.
+For further background you might find [this blogpost](https://cloud.google.com/blog/products/compute/accurate-quantized-training-aqt-for-tpu-v5e?hl=en) interesting.
+The experiments shown here were supported by the [TRC research program](https://sites.research.google/trc/about/).
