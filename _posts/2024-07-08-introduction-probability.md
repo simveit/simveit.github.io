@@ -5,9 +5,6 @@ categories:
 tags:
   - Probability
 ---
-<script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
-</script>
 # Introduction
 
 In this notebook I want to implement some of the ideas from [this lecture](https://www.youtube.com/watch?v=2Xwk6yNq9og) in Python.
