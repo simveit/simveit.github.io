@@ -49,7 +49,7 @@ event
 {('H', 'H', 'H'), ('H', 'H', 'T'), ('H', 'T', 'H'), ('T', 'H', 'H')}
 ```
 The *frequentist* approach states the following:
-If all possible outcomes are equally likely an event E occurs with frequency $\#E/\#S$ where $\#E$ is the number of elements in the Event and #S is the number of elements in the State Space.
+If all possible outcomes are equally likely an event E occurs with frequency #E/#S where #E is the number of elements in the Event and #S is the number of elements in the State Space.
 For our particular example we can do it very simply in Python.
 
 ```python

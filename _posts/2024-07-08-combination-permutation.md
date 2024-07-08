@@ -134,7 +134,7 @@ event = {h for h in hands if h[0].rank == h[1].rank}
 How many elements to be have in the event?
 
 We choose one length and than can choose two suits so we have
-$\#E = {13 \choose 1}{4 \choose 2}$
+#E $ = {13 \choose 1}{4 \choose 2}$
 
 ```python
 len(event) == get_number_k_out_of_n(13,1)*get_number_k_out_of_n(4,2)
