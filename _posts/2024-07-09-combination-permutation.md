@@ -5,9 +5,12 @@ categories:
 tags:
   - Probability
 ---
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
 # Permutations and Combinations
 
-An ordered set of elements in $[n]={1,2,...,n}$ is called a *permutation*.
+An ordered set of elements in $[n]=\{1,2,...,n\}$ is called a *permutation*.
 
 If we consider an ordered subset with r elements in a set of n elements we call this an *r permutation*.
 
