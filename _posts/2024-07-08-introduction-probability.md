@@ -5,8 +5,6 @@ categories:
 tags:
   - Probability with Python
 ---
-# Introduction
-
 Let us start with the notion of a *sample space*. A sample space describes the set of all possible outcomes when performing an experiment.
 
 Let us consider a simple coin throw. The sample space is simply `{H, T}`. We can get either Heads or Tails as a result.
@@ -117,6 +115,6 @@ Fraction(len(event), len(sample_space_dices))
 ```
 Fraction(1, 6)
 ```
-We see that the probability of these event to occur is 1/6.
+We see that the probability of this event to occur is 1/6.
 
 If you want to see more about the topics discussed here you may find the corresponding lecture [by Harry Crane](https://www.youtube.com/watch?v=2Xwk6yNq9og) interesting.

@@ -1,12 +1,10 @@
 ---
-title: "Combinations and Probabilities."
+title: "Permutations and Combinations."
 categories:
   - Basic Probability
 tags:
   - Probability
 ---
-# Permutations and Combinations
-
 An ordered set of elements in `[n]={1,2,...,n}` is called a *permutation*.
 
 If we consider an ordered subset with r elements in a set of n elements we call this an *r permutation*.
