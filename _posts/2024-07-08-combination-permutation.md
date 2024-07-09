@@ -7,7 +7,7 @@ tags:
 ---
 # Permutations and Combinations
 
-An ordered set of elements in $[n]=\{1,2,...,n\}$ is called a *permutation*.
+An ordered set of elements in `[n]={1,2,...,n}` is called a *permutation*.
 
 If we consider an ordered subset with r elements in a set of n elements we call this an *r permutation*.
 
@@ -182,3 +182,5 @@ Fraction(len(event), len(hands)), f"{len(event)/len(hands) * 100:.2f} %"
 ```
 (Fraction(10, 663), '1.51 %')
 ```
+
+If you want to see more about the topics discussed here you may find the corresponding lecture [by Harry Crane](https://www.youtube.com/watch?v=BucyamBwmtE) interesting.

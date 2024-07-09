@@ -3,16 +3,13 @@ title: "Introduction to basic probability."
 categories:
   - Basic Probability
 tags:
-  - Probability
+  - Probability with Python
 ---
 # Introduction
 
-In this notebook I want to implement some of the ideas from [this lecture](https://www.youtube.com/watch?v=2Xwk6yNq9og) in Python.
-The approach of implementation is inspired by [the great notebook of Peter Norvig](https://github.com/norvig/pytudes/blob/main/ipynb/Probability.ipynb).
-
 Let us start with the notion of a *sample space*. A sample space describes the set of all possible outcomes when performing an experiment.
 
-Let us consider a simple coin throw. The sample space is simply $\{H, T\}$. We can get either Heads or Tails as a result.
+Let us consider a simple coin throw. The sample space is simply `{H, T}`. We can get either Heads or Tails as a result.
 
 ```python
 sample_space_coin = {"H", "T"}
@@ -60,7 +57,7 @@ Fraction(len(event)/len(sample_space_coins))
 
 Similar we can consider a repeated dice throw.
 We identify each side of the dice with a number from 1-6.
-That means our sample space for a single dice throw is $\{1,...,6\}$
+That means our sample space for a single dice throw is `{1,...,6}`.
 
 ```python
 sample_space_dice = {1,2,3,4,5,6}
@@ -103,6 +100,7 @@ sample_space_dices
  (6, 5),
  (6, 6)}
 ```
+From the above we see that there are 36 possibilities in total: 6 for each dice throw,
 Let's consider the event that the sum of two dice throws is four or less.
 
 ```python
@@ -119,3 +117,6 @@ Fraction(len(event), len(sample_space_dices))
 ```
 Fraction(1, 6)
 ```
+We see that the probability of these event to occur is 1/6.
+
+If you want to see more about the topics discussed here you may find the corresponding lecture [by Harry Crane](https://www.youtube.com/watch?v=2Xwk6yNq9og) interesting.
