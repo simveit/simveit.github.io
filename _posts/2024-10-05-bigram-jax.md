@@ -5,6 +5,8 @@ categories:
 tags:
   - JAX, TPU
 ---
+![Picture](/assets/bigram/image.png)
+
 # Introduction
 
 Nowadays, everyone has heard of ChatGPT, Claude, or Gemini.
