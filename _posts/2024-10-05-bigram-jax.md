@@ -189,7 +189,7 @@ def train_step(weights: Weights, X: jax.Array, y: jax.Array, learning_rate: floa
 The next step is then to implement the loss. For that we will simply extract the probabilities for the given weights matrix and the training examples x, give that as an argument to the forward function. Then we will extract the probabilities which our model gives us for the ground truth. Take the negative of the logarithm of that and the mean of that over all samples in our training data. 
 Our updating step will then be the familiar gradient descent algorithm. We will calculate using JAX's inbuilt grad function the gradient of the loss over the weights and then use that to make a small step into the negative direction. Which will minimize the loss. 
 Our training step consists simply of calculating the loss and updating the weights. 
-
+Note that we jitted the training step to perform just-in-time compilation which will increase the performance of our model.
 ```python
 def train(weights: Weights, X_train: jax.Array, y_train: jax.Array, X_val: jax.Array, y_val: jax.Array, learning_rate: float, N_EPOCHS: int) -> Weights:
     """
@@ -205,5 +205,126 @@ def train(weights: Weights, X_train: jax.Array, y_train: jax.Array, X_val: jax.A
             print(f"epoch: {epoch}, loss: {loss_value}, val_loss: {val_loss}")
     return weights
 ```
-We can then wrap that up into a training function which repeats the above described training step for a given number of epochs with a given learning rate. Every tenth epoch we will print out the value of the loss over the training set and over the validation set. 
-To familiarize ourselves with the loss function, we can also guess an initial value. What would be an initial value if we don't know anything? So if the model didn't learn anything, well, it can't do much better than predicting uniformly over all characters, which will give us a corresponding loss of $-\log(1/27)$.
+We can then wrap that up into a training function which repeats the above described training step for a given number of epochs with a given learning rate. Every tenth epoch we will print out the value of the loss over the training set and over the validation set. Note that here we don't need to loop over the training set, as we can perform the training step on the whole dataset at once, which is a direct computation. Normally we would need to batch the data, but here we can do it in one go as the dataset is not that large.
+
+To familiarize ourselves with the loss function, we can also guess an initial value. What would be an initial value if we don't know anything? 
+So if the model didn't learn anything, well, it can't do much better than predicting uniformly over all characters, which will give us a corresponding loss of $\ell = -\log(1/27) \approx 3.3$. If the model performs significantly better than that, we learned something. 
+
+```python
+def sample(weights: Weights, key: jax.Array, vocab: List[str]) -> str:
+    """
+    1) Start with <eos>
+    2) Index into the weights matrix W for the current character
+    3) Sample the next character from the distribution
+    4) Append the sampled character to the sampled word
+    5) Repeat steps 3-5 until <eos> is sampled
+    6) Return the sampled word
+    """
+    sampled_word = ['<eos>']
+    current_char = jax.numpy.array([vocab.index('<eos>')])
+    while True:
+        key, subkey = jax.random.split(key)
+        logits = forward(weights, current_char, return_logits=True)[0]
+        next_char = jax.random.categorical(subkey, logits)
+        next_char_int = int(next_char)
+        sampled_word.append(vocab[next_char_int])
+        if next_char_int == vocab.index('<eos>'):
+            break
+        current_char = jax.numpy.array([next_char_int])
+    return ''.join(sampled_word[1:-1])  # Remove start and end <eos> tokens
+```
+Lastly, after we trained the model, we would like to generate text with it. That we can do as follows. For now, we just start with an \<eos\> token to indicate that a sequence is starting. Then we get the corresponding logits. We can use then the JAX functionality to sample the next token according to the probability distribution we learned during training.
+
+Using all the previously defined functions, let us now come to the point and perform one training loop with 100 epochs and then compare the generations we obtain with untrained weights to those after the training. 
+
+```python
+if __name__ == "__main__":
+    words, vocab = load_data('names.txt')
+    encoded_words = [encode(word, vocab) for word in words]
+    print(f"Encoding from {words[0]} -> {encoded_words[0]}")
+    X_train, y_train, X_val, y_val, X_test, y_test = get_train_val_test(encoded_words)
+    print("Built train, validation and test sets")
+    print(f"# training examples: {len(X_train)}")
+    print(f"# validation examples: {len(X_val)}")
+    print(f"# test examples: {len(X_test)}")
+    weights = init_weights(len(vocab))
+    trained_weights = train(weights, X_train, y_train, X_val, y_val, 50, 100)
+    print("Sanity check: Compare words generated from trained_weights and untrained_weights")
+    for i in range(10):
+        key = jax.random.PRNGKey(i)
+        print(f"word from untrained weights: {sample(weights, key, vocab)}")
+        key, subkey = jax.random.split(key)
+        print(f"word from trained weights: {sample(trained_weights, key, vocab)}")
+        print("#"*30)
+```
+The output is as follows: 
+
+```
+number of examples in dataset: 32033
+max word length: 15
+min word length: 2
+unique characters in dataset: 27
+vocabulary:
+<eos> a b c d e f g h i j k l m n o p q r s t u v w x y z
+example for a word:
+emma
+Encoding from emma -> [0, 5, 13, 13, 1, 0]
+Built train, validation and test sets
+# training examples: 182496
+# validation examples: 22819
+# test examples: 22831
+epoch: 0, loss: 3.859163522720337, val_loss: 3.41965913772583
+epoch: 10, loss: 2.6667892932891846, val_loss: 2.6528022289276123
+epoch: 20, loss: 2.5551438331604004, val_loss: 2.560276508331299
+epoch: 30, loss: 2.520414113998413, val_loss: 2.529088020324707
+epoch: 40, loss: 2.5032033920288086, val_loss: 2.5129573345184326
+epoch: 50, loss: 2.4927709102630615, val_loss: 2.5030009746551514
+epoch: 60, loss: 2.4857537746429443, val_loss: 2.4962339401245117
+epoch: 70, loss: 2.480703115463257, val_loss: 2.491330146789551
+epoch: 80, loss: 2.4768946170806885, val_loss: 2.4876201152801514
+epoch: 90, loss: 2.4739294052124023, val_loss: 2.4847280979156494
+Sanity check: Compare words generated from trained_weights and untrained_weights
+word from untrained weights: 
+word from trained weights: krnen
+##############################
+word from untrained weights: zzphk
+word from trained weights: za
+##############################
+word from untrained weights: pd
+word from trained weights: ri
+##############################
+word from untrained weights: rzuedlukcrkhxkjvbjtfghkfmgmpw
+word from trained weights: zueel
+##############################
+word from untrained weights: rkaffablgibhnxaw
+word from trained weights: sa
+##############################
+word from untrained weights: cx
+word from trained weights: col
+##############################
+word from untrained weights: mlvbhkxodr
+word from trained weights: layn
+##############################
+word from untrained weights: egqcg
+word from trained weights: oqca
+##############################
+word from untrained weights: gvaqbnxjtdcgopvxiwgdfghjtfhyiioblujhxbsmafgswnbibbpstitisqnbsvmjjxlujeyffg
+word from trained weights: vamanijadayn
+##############################
+word from untrained weights: tinxeailuvvxxbksftt
+word from trained weights: menesillvelan
+##############################
+```
+We can observe a few things:
+1) Initially the loss is worse than what we would obtain when the probability distribution would be uniform for each character.
+2) The model is able to learn which we see in decreasing loss on training and validation set. 
+3) The generations we obtain from the trained weights are more coherent than the untrained ones but still not valid names, which is due to the fact that the bigram is still after all a limited kind of model. 
+
+# Conclusion & Outlook
+In this blog post, we learned how to implement a simple bigram model to generate natural language. We used JAX to build the model and gained some insights into constructing a basic dataset at the character level. 
+Given the simplicity of the model, it was clear from the beginning that we would not achieve state-of-the-art results. Nevertheless, it serves as a helpful exercise to understand the fundamentals.
+Next to obvious improvements we could make in modeling or tokenization, another point is that JAX is highly capable of serving as a framework for parallel computations which we didn't implement here as well. I leave this as an exercise for the reader. For further information on this you might find older blog posts by me interesting. 
+
+This blogpost is heavily inspired by the excellent [lecture by Andrej Karpathy](https://www.youtube.com/watch?v=PaCmpygFfXo). I highly encourage you to check it out for a more detailed and longer explanation of the bigram model.
+The experiments were performed on a TPU provided by [TRC research program](https://sites.research.google/trc/about/).
+If you have questions or suggestions, please let me know. If you are interested in the code, you can find it at [my gitub](https://github.com/simveit/bigram_jax/tree/main).
