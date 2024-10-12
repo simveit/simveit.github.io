@@ -5,7 +5,7 @@ categories:
 tags:
   - JAX, TPU
 ---
-![Picture](/assets/bigram/image.png)
+![Picture](/assets/bigram/image.png_posts/2024-10-05-bigram-jax.md)
 
 # Introduction
 
