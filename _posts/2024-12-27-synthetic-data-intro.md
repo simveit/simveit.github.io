@@ -116,30 +116,24 @@ synthetic_question = client.chat.completions.create(
         {
             "role": "user",
             "content": """We want to generate synthetic data to evaluate the capabilities of the chatbot of our client.
-Client description:
-{{ client_description }}
+            Client description:
+            {{ "{{ client_description " }}}}
+            To generate high quality data you will first come up with a user type and craft a small background about the user.
+            You will then craft a query for that user. You will be given a topic that the query will be about.
+            You will also be given an example for a user type, background and question for better understanding:
+            Topic: {{ "{{ topic " }}}}
 
-To generate high quality data, you will first come up with a user type and craft a small background about the user.
-You will then craft a query for that user. You will be given a topic that the query will be about.
+            Example type: {{ "{{ example_type " }}}}
+            Example background: {{ "{{ example_background " }}}}
+            Example query: {{ "{{ example_query " }}}}
 
-You will also be given an example for a user type, background, and question for better understanding:
-Topic: {{ topic }}
-Example type: {{ example_type }}
-Example background: {{ example_background }}
-Example query: {{ example_query }}
-
-Please make sure the question is on the topic. It is highly important to generate a user type, background, and query about the topic.
-""",
+            Please make sure that the question is on the topic. It is highly important the generate user type, background and query are about the topic.""",  
         },
     ],
     response_model=SyntheticQuestion,
-    context={
-        "client_description": client_description,
-        "topic": profile["topic"],
-        "example_type": profile["example_type"],
-        "example_background": profile["example_background"],
-        "example_query": profile["example_query"]
-    },
+    context={"client_description": client_description, "topic": profile["topic"],
+             "example_type": profile["example_type"], "example_background": profile["example_background"],
+             "example_query": profile["example_query"]},  
 )
 
 resp = Response(
