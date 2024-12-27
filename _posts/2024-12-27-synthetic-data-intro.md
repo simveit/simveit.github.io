@@ -1,149 +1,193 @@
 ---
-title: "Multi chip performance in JAX"
+title: "Personas That Matter – Elevating Chatbots Through Data-Driven Authenticity"
 categories:
-  - High performance computing
+  - synthetic data
 tags:
-  - Jax
-  - TPU
+  - LLM
 ---
 
-The larger the models we use get the more it becomes necessary to be able to perform training of machine learning models over multiple chips.
-In this blog post we will explain how to efficiently use Google's TPU. TPUs are especially convenient as they are designed especially for machine learning and easily deployable on Google Cloud. For an introduction on how to deploy your own TPU with Google Cloud, [see this excellent documentation](https://github.com/ayaka14732/tpu-starter?tab=readme-ov-file#2-introduction-to-tpu).
+# **Personas That Matter – Elevating Chatbots Through Data-Driven Authenticity**
 
-In this tutorial we will take a simple layerwise matrix multiplication of activations with weights as our running example. The workload may be visualized like this:
+## **How Can We Evaluate Our Chatbot Before Deploying It?**
 
-![Layer-wise Matrix Multiplication](/assets/multi_chip_processing/LayerwiseMatMul.png)
+Imagine you’re about to launch a new chatbot. Everyone is excited, but the variety of real users it needs to handle is enormous. A few internal tests may not be enough to cover all possible scenarios that your chatbot will face in the real world.
 
-In the above diagram the activations have shape `B*E x E` and the weights have shape `E x E`. 
-The question is now how we can distribute this workload in an efficent way onto the different TPU chips.
+Fortunately, it’s now relatively easy to generate a few hundred curated examples of potential user queries—often referred to as _synthetic data._ But here’s the challenge: **How do we ensure that this synthetic data realistically captures the diversity of user personalities** and the types of queries your chatbot will encounter once it goes live?
 
-For the activations it's pretty obvious how we can distribute them onto different chips: Just put each batch onto one chip and then run the calculation for each batch independently, that is we multiply each batch with the weights matrix.
-This can be visualized as follows:
-![Layer-wise Matrix Multiplication](/assets/multi_chip_processing/LayerwiseMatMulSharded.png)
-The different colors should visualize the fact that the activations are distributed batchwise over the different chips and the weights are copied onto all chips.
-In JAX we can accomplish distribution onto different chips as follows:
+In this post, I’ll walk you through **best practices** for generating synthetic data. The workflow below provides a **high-level overview** of a process you can apply to create high-quality, authentic queries that will help you thoroughly test your chatbot before rolling it out.
+
+Below is a **workflow diagram** illustrating the process of creating and refining synthetic data for chatbot testing:
+
+1. **Define Relevant Topics**: Collaborate with the customer care team or use an LLM to identify key areas where your chatbot must excel.
+
+2. **Define User Personalities & Backgrounds**: Enrich each topic with realistic user profiles, complete with backstories and example queries.
+
+3. **Sample Personas & Generate Queries**: Use a smaller LLM to produce synthetic questions based on the defined personas—capturing diverse tones and user needs.
+
+4. **Review & Refine**: Domain experts validate the quality of these generated queries, discarding weak entries and fine-tuning prompts. If necessary, the process loops back to earlier steps to continuously improve coverage and authenticity.
+
+![Workflow](/assets/synthetic_data/image.png)
+
+
+## **Determine Relevant Topics and User Profiles**
+
+For this blog post, I used OpenAI’s **o1** model to propose a fictional company and a product that we want to build a chatbot for. The next step was identifying relevant tools, topics, and user personas—then compiling them into a **YAML** file. This YAML file pairs each topic with potential user profiles and example queries.
+
+The company profile I created is defined in a **Markdown** document, which we pass to the LLM as context when generating our synthetic data. In a real-world scenario, you or your client would craft a similar profile for an actual business use case. Below is an excerpt from the *fake* **Millennia Bank** profile which I used:
+
+```markdown
+# Millennia Bank Information
+
+Millennia Bank, established in 2002 in Berlin, is a consumer finance institution serving customers across Europe. The bank offers various products such as checking and savings accounts, loans, and multiple credit card lines. One of its primary offerings is the **MillenniaCard**, which comes in three tiers: **Classic**, **Platinum**, and **Student**.
+
+...
 ```
-import jax
-from timing_util import simple_timeit
 
-### Parameters
-MATRIX_SIZE = 16_384
+An example of the **topic/user profile** pairs in the YAML file looks like this:
 
-A = jax.numpy.ones((MATRIX_SIZE, MATRIX_SIZE), dtype=jax.numpy.bfloat16)
+```yaml
+- topic: "Payment Not Going Through"
 
-### Create our shard
-mesh = jax.sharding.Mesh(jax.devices(), ("axis"))
-p = jax.sharding.PartitionSpec(None, "axis")
-sharding = jax.sharding.NamedSharding(mesh, p)
+  example_types:
 
-### shard the array
-A_sharded = jax.device_put(A, sharding)
+    - example_type: "Frantic Freelancer"
+      example_background: "Alex is a freelance graphic designer who depends on quick transactions and hates delays."
+      example_query: "I tried paying for a client’s stock images twice, and my MillenniaCard was declined both times! It’s embarrassing and I’m on a tight deadline—why is this happening?"
 
-### Visualize the sharding
-print(f"{p=}")
-print(f"{A_sharded.shape=}, {A_sharded.addressable_shards[0].data.shape=}")
-jax.debug.visualize_array_sharding(A_sharded)
+    - example_type: "Nervous First-Timer"
+      example_background: "Daniel is new to credit cards and worries every time a payment doesn’t go through."
+      example_query: "I just tried to pay my phone bill online, but it was rejected. I’m not sure if I messed up the card details. Could you check if something’s wrong on my account?"
 ```
-Depending on how we define the partitioning we will get the following:
+
+Although I used the **o1** model to generate this YAML, in practice, you would likely collaborate with your client (or internal teams) to identify the most common and impactful topics. The idea is to make your synthetic data truly **representative** of real-world use cases—especially those edge scenarios that often slip through standard testing.
+
+## **Naive approach**
+
+Before applying user profiles, let’s examine a **basic** approach to synthetic data generation. Essentially, we’d just provide the LLM with the company context, and nothing else. This inevitably leads to **generic** or _one-size-fits-all_ queries. Below is a **code snippet** demonstrating this idea:
+
+```python
+class SyntheticQuestion(BaseModel):
+    chain_of_thought: str
+    query: str
+
+resp = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {
+            "role": "user",
+            "content": """Write a potential user query to a chatbot for the following product:
+            `{{ data }}`""",  
+        },
+    ],
+    response_model=SyntheticQuestion,
+    context={"data": client_description},  
+)
+
+print(resp.chain_of_thought)
+print(resp.query)
+
+# > The user is likely interested in understanding the features, benefits, or specifics of the MillenniaCard. They could be considering which tier of the MillenniaCard is best suited for their needs, or they may have questions about fees, interest rates, or rewards. A suitable query would reflect an inquiry about the different card options and their associated benefits to help in making a decision.
+# > What are the differences between the Classic, Platinum, and Student tiers of the MillenniaCard, and what benefits does each one offer?
 ```
-p=PartitionSpec(None, 'axis')
-A_sharded.shape=(16384, 16384), A_sharded.addressable_shards[0].data.shape=(16384, 4096)
-┌───────┬───────┬───────┬───────┐
-│       │       │       │       │
-│       │       │       │       │
-│       │       │       │       │
-│       │       │       │       │
-│ TPU 0 │ TPU 1 │ TPU 2 │ TPU 3 │
-│       │       │       │       │
-│       │       │       │       │
-│       │       │       │       │
-│       │       │       │       │
-└───────┴───────┴───────┴───────┘
 
-p=PartitionSpec('axis', None)
-A_sharded.shape=(16384, 16384), A_sharded.addressable_shards[0].data.shape=(4096, 16384)
-┌───────────────────────┐
-│         TPU 0         │
-├───────────────────────┤
-│         TPU 1         │
-├───────────────────────┤
-│         TPU 2         │
-├───────────────────────┤
-│         TPU 3         │
-└───────────────────────┘
+Here, we’re using the **instructor** library for structured output, alongside OpenAI’s **4o-mini** model. While the LLM generates a query that _could_ be asked by a real user, it’s **quite generic**—missing any nuanced tone or situational detail.
+Up next, we’ll see how **injecting user profiles** (e.g., “Frantic Freelancer,” “Nervous First-Timer”) transforms these synthetic queries into more **authentic** reflections of real-world interactions.
 
-p=PartitionSpec(None,)
-A_sharded.shape=(16384, 16384), A_sharded.addressable_shards[0].data.shape=(16384, 16384)
-┌───────────────────────┐
-│                       │
-│                       │
-│                       │
-│                       │
-│      TPU 0,1,2,3      │
-│                       │
-│                       │
-│                       │
-│                       │
-└───────────────────────┘
+## **Using Topics and User Profiles for More Realistic Queries**
 
+A more **authentic** result emerges when we incorporate **topics** and **user profiles**. Here’s the workflow:
+
+1. **Sample a topic** (e.g., “Payment Not Going Through”) and an accompanying **user profile** (e.g., “Nervous First-Timer”) from our YAML file.
+
+2. **Provide** the topic, user profile details, and the **company context** to the LLM.
+
+3. **Generate** a fresh user profile corresponding to the given topic and a query that corresponds to that pair.
+
+```python
+class SyntheticQuestion(BaseModel):
+    user_type: str
+    user_background: str
+    query: str
+
+class Response(BaseModel):
+    topic: str
+    synthetic_question: SyntheticQuestion
+
+synthetic_question = client.chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[
+        {
+            "role": "user",
+            "content": """We want to generate synthetic data to evaluate the capabilities of the chatbot of our client.
+            Client description:
+            `{{ client_description }}`
+            To generate high quality data you will first come up with a user type and craft a small background about the user.
+            You will then craft a query for that user. You will be given a topic that the query will be about.
+            You will also be given an example for a user type, background and question for better understanding:
+            Topic: {{ topic }}
+            ```
+            Example type: {{ example_type }}
+            Example background: {{ example_background }}
+            Example query: {{ example_query }}
+            ```
+            Please make sure that the question is on the topic. It is highly important the generate user type, background and query are about the topic.""",  
+        },
+    ],
+    response_model=SyntheticQuestion,
+    context={"client_description": client_description, "topic": profile["topic"],
+             "example_type": profile["example_type"], "example_background": profile["example_background"],
+             "example_query": profile["example_query"]},  
+)
+
+resp = Response(
+    topic=profile["topic"],
+    synthetic_question=synthetic_question
+)
+
+print(resp.topic)
+print(profile["example_type"])
+print(profile["example_background"])
+print(profile["example_query"])
+print(resp.synthetic_question.user_type)
+print(resp.synthetic_question.user_background)
+print(resp.synthetic_question.query)
+# > Requesting an Additional Card
+# > Roommate Sharing Bills
+# > Iris splits rent and groceries with her roommate, hoping to consolidate spending on one card.
+# > Could I get a second card for my roommate? We share expenses, and it’d be simpler to manage everything on one statement.
+# > Student Cardholder
+# > Mark is a university student who has just received his first MillenniaCard Student. He is eager to manage his finances better and enjoys using mobile apps for tracking expenses, especially since he has limited income from part-time work.
+# > Can I get an additional card for my parents to help them manage shared expenses? It would make it easier for us to handle costs when they support me in my studies.
 ```
-We see that we want to use the partition `p=PartitionSpec('axis', None)` for the activations and `p=PartitionSpec(None,)` for the weights.
 
-So far so good but this still doesn't leverage the full power of having multiple chips. What if the weight matrices are very large- So large that we can't distribute all of them onto each chip?
+Why This Matters
 
-It turns out we can do the following:
-![Layer-wise Matrix Multiplication](/assets/multi_chip_processing/LayerwiseMatMulFullShard.png)
-What we see is that initially we distribute the weights also over all available chips.
-But for the calculation we need the weight for the current layer to be on all chips. How can this be archieved?
-It turns out the algorithm is quiete simple:
-Let `L_i, A_i, W_i` be i-th layer, activation and weight. 
-While calculating `L_{i+1}`, i.e. multiplying `A_i` with `W_i` we have `W_i` ungathered (i.e. distributed over all chips). At the same time we ungather `W_{i+1}`. When done with `L_i` we can distribute `W_i` back onto all chips. If this process is faster than the matrix multiplication we only need to keep 2 weights unsharded instead of `N_layer` weights while not decreasing performance!
-Let's see how we can implement that in JAX:
-```
-import jax
-from timing_util import simple_timeit
+Compare the naive approach:
 
-### Parameters
-BATCH_PER_CHIP = 4096
-MATRIX_SIZE = 16_384
-N_LAYERS = 4
+	“What are the differences between the Classic, Platinum, and Student tiers of the MillenniaCard, and what benefits does each one offer?”
 
-### Activations and weights
-ACTIVATION = jax.numpy.ones((BATCH_PER_CHIP*jax.device_count(), MATRIX_SIZE), dtype=jax.numpy.bfloat16)
-WEIGHTS = [jax.numpy.ones((MATRIX_SIZE, MATRIX_SIZE), dtype=jax.numpy.bfloat16) for _ in range(N_LAYERS)]
+with the improved one:
 
-### Shardings 
-mesh = jax.sharding.Mesh(jax.devices(), ("axis"))
-### Distribute data along the rows
-p_a = jax.sharding.PartitionSpec("axis", None)
-### Distribute data along the columns
-p_w = jax.sharding.PartitionSpec(None, "axis")
+	“Can I get an additional card for my parents to help them manage shared expenses? It would make it easier for us to handle costs when they support me in my studies.”
 
-sharding_a = jax.sharding.NamedSharding(mesh, p_a)
-sharding_w = jax.sharding.NamedSharding(mesh, p_w)
+The second query feels far more realistic, capturing a specific user type and scenario. This technique—mixing persona data with context—helps test your chatbot’s ability to handle real-world nuances rather than just generic FAQs.
 
-### Shard the activations
-ACTIVATION = jax.device_put(ACTIVATION, sharding_a)
-WEIGHTS = [jax.device_put(w, sharding_w) for w in WEIGHTS]
+## **What’s Left?**
 
-### Let jax determine how to perform the forward pass efficiently
-@jax.jit
-def matmul(ACTIVATION, WEIGHTS):
-    for w in WEIGHTS:
-        ACTIVATION = ACTIVATION @ w
-    return ACTIVATION
+So far, we’ve demonstrated how to **generate a single data entry**—which obviously won’t cover all real-world scenarios. In practice, you’d likely:
 
-### Time the forward pass
-average_time = simple_timeit(matmul, ACTIVATION, WEIGHTS, task="matmul")
+1. **Generate a Larger Dataset**
 
-print(f"Average time for forward pass: {average_time:.2f} ms")
-```
-For the above setting we archieved an average time of 39.82 ms on Googles `TPU-v4-8` (that is a TPU with 8/2=4 chips). 
+Leverage asynchronous calls to the OpenAI API to quickly produce hundreds of synthetic queries.
 
-Let's look at the trace viewer to get more insight about how jax compiled the matmul function:
-![Profiler](/assets/multi_chip_processing/fdsp.png)
-We see that JAX does exactly what we described above! Only the first all gather is performed for a "long" time. Afterwards the gathering process gets fused with the matrix multiplication which gives a huge speedup if we compare it to the naive approach that we would just apply all gathering after each matrix multiplication and at the same time it gives us the benefit that we can safe lots of memory by sharding most of the weights over all chips.
-Keep in mind that this compilation won't be done by default on a TPU of the fourth generation. To get this speedup we need to execute `export LIBTPU_INIT_ARGS="--xla_enable_async_all_gather=true TPU_MEGACORE=MEGACORE_DENSE"` in our terminal to initialize the TPU correctly. If you won't do that the all gathering won't be fused with the matmul and as a result it will take around 53.31 ms.
+2. **Review with Domain Experts**
 
-I hope this post was insightful and you liked it.
-Large parts of it are based on the insights from [this fantastic online course delivered by Rafi Witten](https://github.com/rwitten/HighPerfLLMs2024). The code for the timeit function can be found in this repo aswell. The experiments were supported by [Googles TRC program](https://sites.research.google/trc/about/)
+Have specialists check whether each query truly reflects real-world user concerns.
+
+3. **Iterate & Refine**
+
+Adjust prompts, user profiles, or system settings as needed—especially if you spot edge cases or off-target questions.
+
+Once you’ve collected around **200 samples**, you can feed them into your chatbot, observe the responses, and evaluate alignment with **expected outcomes**. Where mismatches appear—whether in tone, accuracy, or content—you can fine-tune the system prompts or the LLM’s overall configuration.
+
+All the code shown here is available on my [**GitHub**](https://github.com/simveit/synthetic_data). Feel free to explore, experiment, or reach out if these techniques might benefit your own chatbot projects!
