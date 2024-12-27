@@ -174,15 +174,15 @@ The second query feels far more realistic, capturing a specific user type and sc
 
 So far, we’ve demonstrated how to **generate a single data entry**—which obviously won’t cover all real-world scenarios. In practice, you’d likely:
 
-1. **Generate a Larger Dataset**
+* **Generate a Larger Dataset**
 
 Leverage asynchronous calls to the OpenAI API to quickly produce hundreds of synthetic queries.
 
-2. **Review with Domain Experts**
+* **Review with Domain Experts**
 
 Have specialists check whether each query truly reflects real-world user concerns.
 
-3. **Iterate & Refine**
+* **Iterate & Refine**
 
 Adjust prompts, user profiles, or system settings as needed—especially if you spot edge cases or off-target questions.
 
