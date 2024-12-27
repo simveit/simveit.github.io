@@ -73,11 +73,12 @@ resp = client.chat.completions.create(
     messages=[
         {
             "role": "user",
-            "content": "Write a potential user query to a chatbot for the following product:\n\\`{{ data }}\\`"
+            "content": """Write a potential user query to a chatbot for the following product:
+            {{ "{{ data " }}}}""",  
         },
     ],
     response_model=SyntheticQuestion,
-    context={"data": client_description},
+    context={"data": client_description},  
 )
 
 print(resp.chain_of_thought)
