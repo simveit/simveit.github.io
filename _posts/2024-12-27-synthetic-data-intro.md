@@ -73,7 +73,7 @@ resp = client.chat.completions.create(
     messages=[
         {
             "role": "user",
-            "content": "Write a potential user query to a chatbot for the following product:\n{{ data }}"
+            "content": "Write a potential user query to a chatbot for the following product:\n\\`{{ data }}\\`"
         },
     ],
     response_model=SyntheticQuestion,
@@ -154,7 +154,6 @@ print(profile["example_query"])
 print(resp.synthetic_question.user_type)
 print(resp.synthetic_question.user_background)
 print(resp.synthetic_question.query)
-
 # > Requesting an Additional Card
 # > Roommate Sharing Bills
 # > Iris splits rent and groceries with her roommate, hoping to consolidate spending on one card.
